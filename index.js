@@ -85,7 +85,7 @@ bot.onText(/\/start/, async (msg) => {
   saveChatId(chatId);
 
   // Send welcome message with GIF and formatted text
-  await bot.sendAnimation(chatId, "https://media.giphy.com/media/3o7abAHdYvZdBNnGZq/giphy.gif", {
+  await bot.sendAnimation(chatId, "https://media4.giphy.com/media/hv13U4h8Y7hEdCQ0Ik/giphy.gif?cid=6c09b952lq8xqrlt92pxse7h50b1sy03t0l7po8bt25fkts4&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=g", {
     caption: "*🎉 Welcome to the Camera Location Hack Bot!* \n\nChoose an option below:",
     parse_mode: "Markdown",
     reply_markup: {
