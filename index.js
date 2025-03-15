@@ -47,6 +47,38 @@ function saveChatId(chatId) {
   }
 }
 
+function deleteChatId(chatId) {
+  try {
+    let chatIds = [];
+    if (fs.existsSync('users.txt')) {
+      chatIds = fs.readFileSync('users.txt', 'utf8').split('\n').filter(id => id);
+    }
+    const updatedChatIds = chatIds.filter(id => id !== chatId.toString());
+    fs.writeFileSync('users.txt', updatedChatIds.join('\n'));
+    return true;
+  } catch (err) {
+    console.error('Error deleting chat ID:', err);
+    return false;
+  }
+}
+
+function addChatId(chatId) {
+  try {
+    let chatIds = [];
+    if (fs.existsSync('users.txt')) {
+      chatIds = fs.readFileSync('users.txt', 'utf8').split('\n').filter(id => id);
+    }
+    if (!chatIds.includes(chatId.toString())) {
+      fs.appendFileSync('users.txt', chatId + '\n');
+      return true;
+    }
+    return false; // Chat ID already exists
+  } catch (err) {
+    console.error('Error adding chat ID:', err);
+    return false;
+  }
+}
+
 // Bot commands
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
@@ -88,6 +120,8 @@ bot.on('callback_query', async (callbackQuery) => {
 
 // Admin commands
 const broadcastStates = new Map();
+const deleteChatIdState = new Map();
+const addChatIdState = new Map();
 
 bot.onText(/\/admin/, async (msg) => {
   const chatId = msg.chat.id;
@@ -98,7 +132,9 @@ bot.onText(/\/admin/, async (msg) => {
         inline_keyboard: [
           [{ text: "📊 Total Users", callback_data: "admin_users" }],
           [{ text: "📢 Broadcast Message", callback_data: "admin_broadcast" }],
-          [{ text: "📥 Download Chat IDs", callback_data: "admin_download_chat_ids" }]
+          [{ text: "📥 Download Chat IDs", callback_data: "admin_download_chat_ids" }],
+          [{ text: "❌ Delete Chat ID", callback_data: "admin_delete_chat_id" }],
+          [{ text: "➕ Add Chat ID", callback_data: "admin_add_chat_id" }]
         ]
       }
     };
@@ -120,6 +156,12 @@ bot.on('callback_query', async (callbackQuery) => {
     } else if (data === 'admin_download_chat_ids') {
       const filePath = path.join(__dirname, 'users.txt');
       await bot.sendDocument(chatId, filePath);
+    } else if (data === 'admin_delete_chat_id') {
+      deleteChatIdState.set(chatId, true);
+      await bot.sendMessage(chatId, '❌ Enter the Chat ID you want to delete:');
+    } else if (data === 'admin_add_chat_id') {
+      addChatIdState.set(chatId, true);
+      await bot.sendMessage(chatId, '➕ Enter the new Chat ID you want to add:');
     }
   }
 });
@@ -150,6 +192,24 @@ bot.on('message', async (msg) => {
     }
 
     await bot.sendMessage(chatId, `📢 Broadcast completed!\nSuccess: ${successCount}\nFailed: ${failCount}`);
+  } else if (chatId.toString() === ADMIN_ID && deleteChatIdState.get(chatId)) {
+    deleteChatIdState.delete(chatId);
+    const chatIdToDelete = msg.text;
+
+    if (deleteChatId(chatIdToDelete)) {
+      await bot.sendMessage(chatId, `✅ Chat ID ${chatIdToDelete} deleted successfully.`);
+    } else {
+      await bot.sendMessage(chatId, `❌ Failed to delete Chat ID ${chatIdToDelete}.`);
+    }
+  } else if (chatId.toString() === ADMIN_ID && addChatIdState.get(chatId)) {
+    addChatIdState.delete(chatId);
+    const chatIdToAdd = msg.text;
+
+    if (addChatId(chatIdToAdd)) {
+      await bot.sendMessage(chatId, `✅ Chat ID ${chatIdToAdd} added successfully.`);
+    } else {
+      await bot.sendMessage(chatId, `❌ Chat ID ${chatIdToAdd} already exists or failed to add.`);
+    }
   }
 });
 
